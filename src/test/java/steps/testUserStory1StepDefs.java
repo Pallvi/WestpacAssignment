@@ -20,10 +20,14 @@ import static org.junit.Assert.assertEquals;
 
 public class testUserStory1StepDefs {
 
-    WebDriver driver;
+	private WebDriver driver;
 
-	String items = "nav[id=ubermenu-ps] li[class*=sw-ubermenu-section] a[class*=sw-ubermenu-section-link]";
-	String retirementProjectionbtn = "div[class=inner-cell] button[class*=btn-results-reveal] span[class=label]";
+	private static By items = By.cssSelector("nav[id=ubermenu-ps] li[class*=sw-ubermenu-section] a[class*=sw-ubermenu-section-link]");
+	private static By retirementProjectionbtn = By.cssSelector("div[class=inner-cell] button[class*=btn-results-reveal] span[class=label]");
+	private static By kiwiSaverCalculatorBtn = By.cssSelector("a[id=ubermenu-item-cta-kiwisaver-calculators-ps]");
+	private static By sideNavMenu = By.cssSelector("div[id=side-menu-ps]");
+	private static By sideNavMenuItemLast = By.cssSelector("ul[class*=sw-toggle-show] span[class*=last]");
+	private static By errorMsg = By.cssSelector("div[id=errordiv] li");
 
 	@After
 	public void afterScenario(){
@@ -33,17 +37,7 @@ public class testUserStory1StepDefs {
 	@Given("^I am on KiwiSaver Retirement Calculator$")
 	public void i_am_on_KiwiSaver_Retirement_Calculator() throws Throwable {
 		navigateToRetirementCalc();
-		switchToFrame();
-	}
-
-	private void switchToFrame() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		driver.switchTo().frame(0); //TODo: not understand
+		switchToFrame(0);
 	}
 
 	@When("^I click on the information icon besides \"([^\"]*)\" field$")
@@ -55,99 +49,6 @@ public class testUserStory1StepDefs {
 	public void verifyInformationIconMessage(String option, String msg) throws Throwable {
 		assertEquals(getFieldMessageForIcon(option),msg);
 		}
-
-	private void setUp()
-	{
-		System.setProperty("webdriver.chrome.driver", "C:\\Users\\root\\Desktop\\Westpac\\driver\\chromedriver.exe");
-		driver = new ChromeDriver();
-		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
-	 	driver.get("https://www.westpac.co.nz/");
-		driver.manage().window().maximize();
-	}
-	private void navigateToRetirementCalc() {
-		setUp();
-		hoverOverMenuItem("KiwiSaver");
-		clickKiwiSaverCalculatorsBtn();
-		SelectSideNavOption("KiwiSaver Retirement Calculator");
-	}
-
-	public void hoverOverMenuItem(String menuItem){
-		List<WebElement> menuItems = driver.findElements(By.cssSelector(items));
-		for (WebElement item:menuItems)
-		{
-			if(item.getText().trim().equals(menuItem))
-				hoverOverElement(item);
-		}
-	}
-	private void SelectSideNavOption(String option)  {
-		waitForElementToBeVisible(driver.findElement(By.cssSelector("div[id=side-menu-ps]")));
-		//TODO Change the locator
-
-		List<WebElement> sideNavOptions = driver.findElements(By.cssSelector("ul[class*=sw-toggle-show] span[class*=last]"));
-		for (WebElement sideNavOption:sideNavOptions)
-		{
-			 if(sideNavOption.getText().equals(option))
-				sideNavOption.click();
-				break;
-		}
-	}
-
-	/*private void hoverOverMenuItem(final String menuItem){
-		List<WebElement> menuItems = driver.findElements(By.cssSelector("nav[id=ubermenu-ps] li[class*=sw-ubermenu-section] a[class*=sw-ubermenu-section-link]"));
-		for (WebElement item:menuItems)
-		{
-			if(item.getText().trim().equals(menuItem))
-				hoverOverElement(item);
-		}
-	}*/
-
-	private void hoverOverElement(WebElement e)
-	{
-		Actions builder = new Actions(driver);
-		builder.moveToElement(e).build().perform();
-	}
-
-	private void clickKiwiSaverCalculatorsBtn()
-	{
-		WebElement KiwiSaverCalculatorBtn = driver.findElement(By.cssSelector("a[id=ubermenu-item-cta-kiwisaver-calculators-ps]"));
-		waitForElementToBeVisible(KiwiSaverCalculatorBtn);
-		KiwiSaverCalculatorBtn.click();
-	}
-
-	private WebElement waitForElementToBeVisible(WebElement e)
-	{
-		WebElement element = new WebDriverWait(driver,10 )
-				.until(ExpectedConditions.visibilityOf(e));
-		return element;
-	}
-
-	private WebElement waitForElementToBeClickAble(WebElement e) {
-		WebElement element = new WebDriverWait(driver, 10)
-				.until(ExpectedConditions.elementToBeClickable(e));
-		return element;
-	}
-
-	private void clickInformationIconForCalculatorOption(String calcOption) {
-
-		 WebElement options = driver.findElement(By.cssSelector("div[help-id="+calcOption+"] button"));
-
-		 hoverOverElement(options);
-		 options.click();
-	}
-
-	private String getFieldMessageForIcon(String option)
-	{
-		WebElement e = driver.findElement(By.cssSelector("div[help-id="+option+"] p"));
-		return e.getText();
-	}
-
-	private void inputValue(String label, String value) {
-		if (value.length() != 0) {
-			WebElement options = driver.findElement(By.cssSelector("div[help-id=" + label + "] input"));
-			hoverOverElement(options);
-			options.sendKeys(value);
-		}
-	}
 
 	@When("^I input information in the Retirement Calculator for \"([^\"]*)\" as : \"([^\"]*)\"$")
 	public void iInputInformationInTheRetirementCalculatorForAs(String label, String value) throws Throwable {
@@ -197,7 +98,7 @@ public class testUserStory1StepDefs {
 
 	@When("^I click button View your KiwiSaver retirement projections >$")
 	public void iClickButtonViewYourKiwiSaverRetirementProjections() throws Throwable {
-		WebElement button = driver.findElement(By.cssSelector(retirementProjectionbtn));
+		WebElement button = driver.findElement(retirementProjectionbtn);
 		button.click();
 	}
 
@@ -225,12 +126,10 @@ public class testUserStory1StepDefs {
 		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
 		driver.get("https://www.westpac.co.nz/");
 		driver.manage().window().maximize();
-		driver.getCurrentUrl().equals("https://www.westpac.co.nz/");
 	}
 
 	@And("^I hover over the \"([^\"]*)\" option in the menu$")
 	public void hoverOverManinMenu(String menuItem) throws Throwable {
-		//hoverOverMenuItem(menuItem);
 		hoverOverMenuItem(menuItem);
 	}
 
@@ -241,10 +140,9 @@ public class testUserStory1StepDefs {
 		btn.click();
 	}
 
-	@Then("^I am on the Current converter page$")
+	@Given("^I am on the Current converter page$")
 	public void iAmOnTheCurrentConverterPage() throws Throwable {
-		driver.getCurrentUrl().equals("https://www.westpac.co.nz/fx1-travel-migrant/foreign-exchange-and-international/currency-converter/");
-		driver.switchTo().frame("westpac-iframe");
+		switchToFrame("westpac-iframe");
 	}
 
 	@When("^I enter value : \"([^\"]*)\" in the enter amount box$")
@@ -259,11 +157,7 @@ public class testUserStory1StepDefs {
 
 	@Then("^I verify the error message \"([^\"]*)\" on the currency converter page$")
 	public void iVerifyTheErrorMessageOnTheCurrencyConvertorPage(String msg) throws Throwable {
-		Assert.assertEquals(GetErrorMsg(),msg);
-	}
-
-	private String GetErrorMsg() {
-		return driver.findElement(By.cssSelector("div[id=errordiv] li")).getText();
+		Assert.assertEquals(getErrorMsg(), msg);
 	}
 
 	@When("^I select \"([^\"]*)\" dropdown option as : \"([^\"]*)\"$")
@@ -283,6 +177,105 @@ public class testUserStory1StepDefs {
 	@Then("^the conversion is successful$")
 	public void verifyConversionResult() throws Throwable {
 		Assert.assertTrue(isConversionSuccess());
+	}
+
+
+	private void setUp() {
+		System.setProperty("webdriver.chrome.driver", "C:\\Users\\root\\Desktop\\Westpac\\driver\\chromedriver.exe");
+		driver = new ChromeDriver();
+		driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
+		driver.get("https://www.westpac.co.nz/");
+		driver.manage().window().maximize();
+	}
+
+	private void navigateToRetirementCalc() {
+		setUp();
+		hoverOverMenuItem("KiwiSaver");
+		clickKiwiSaverCalculatorsBtn();
+		SelectSideNavOption("KiwiSaver Retirement Calculator");
+	}
+
+	private void hoverOverMenuItem(String menuItem) {
+		List<WebElement> menuItems = driver.findElements(items);
+		for (WebElement item : menuItems) {
+			if (item.getText().trim().equals(menuItem))
+				hoverOverElement(item);
+		}
+	}
+
+	private void SelectSideNavOption(String option) {
+		waitForElementToBeVisible(driver.findElement(sideNavMenu));
+
+		List<WebElement> sideNavOptions = driver.findElements(sideNavMenuItemLast);
+		for (WebElement sideNavOption : sideNavOptions) {
+			if (sideNavOption.getText().equals(option))
+				sideNavOption.click();
+			break;
+		}
+	}
+
+	private void hoverOverElement(WebElement e) {
+		Actions builder = new Actions(driver);
+		builder.moveToElement(e).build().perform();
+	}
+
+	private void clickKiwiSaverCalculatorsBtn() {
+		waitForElementToBeVisible(driver.findElement(kiwiSaverCalculatorBtn));
+		driver.findElement(kiwiSaverCalculatorBtn).click();
+	}
+
+	private WebElement waitForElementToBeVisible(WebElement e) {
+		return new WebDriverWait(driver, 10)
+				.until(ExpectedConditions.visibilityOf(e));
+	}
+
+	private WebElement waitForElementToBeClickAble(WebElement e) {
+		return new WebDriverWait(driver, 10)
+				.until(ExpectedConditions.elementToBeClickable(e));
+	}
+
+	private void clickInformationIconForCalculatorOption(String calcOption) {
+		WebElement options = driver.findElement(By.cssSelector("div[help-id=" + calcOption + "] button"));
+
+		hoverOverElement(options);
+		options.click();
+	}
+
+	private String getFieldMessageForIcon(String option) {
+		WebElement e = driver.findElement(By.cssSelector("div[help-id=" + option + "] p"));
+		return e.getText();
+	}
+
+	private void inputValue(String label, String value) {
+		if (value.length() != 0) {
+			WebElement options = driver.findElement(By.cssSelector("div[help-id=" + label + "] input"));
+			hoverOverElement(options);
+			options.sendKeys(value);
+		}
+	}
+
+	private void switchToFrame(String frameName) {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		driver.switchTo().frame(frameName); //TODo: not able to get the name of the frame
+	}
+
+	private void switchToFrame(int frameId) {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		driver.switchTo().frame(frameId); //TODo: not able to get the name of the frame
+	}
+
+	private String getErrorMsg() {
+		return driver.findElement(errorMsg).getText();
 	}
 
 	private boolean isConversionSuccess() {
