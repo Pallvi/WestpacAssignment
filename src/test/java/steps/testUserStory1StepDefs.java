@@ -261,7 +261,7 @@ public class testUserStory1StepDefs {
 			e.printStackTrace();
 		}
 
-		driver.switchTo().frame(frameName); //TODo: not able to get the name of the frame
+		driver.switchTo().frame(frameName);
 	}
 
 	private void switchToFrame(int frameId) {
